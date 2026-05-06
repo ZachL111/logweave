@@ -1,45 +1,29 @@
 # logweave
 
-`logweave` is a Rust project for Observability. It turns correlate service logs into incident timelines into a small local model with readable fixtures and a direct verification command.
+`logweave` is a Rust project in observability. Its focus is to correlate service logs into incident timelines.
 
-## Reading Logweave
+## Why It Exists
 
-Start with the README, then open `metadata/project.json` to check the constants behind the examples. After that, `fixtures/cases.csv` shows the compact path and `examples/extended_cases.csv` gives a wider look at the same rule.
+This is intentionally local and self-contained so it can be inspected without credentials, services, or seeded history.
 
-## Design Sketch
+## Logweave Review Notes
 
-The design is intentionally direct: parse or construct a signal, score it, classify it, and verify the expected branch. This makes the repository useful for studying observability behavior without needing a service or database unless the language project itself is SQL. The Rust code keeps ownership and data movement plain, which makes the tests useful for checking both behavior and API shape.
+The first comparison I would make is `span volume` against `signal loss` because it shows where the rule is most opinionated.
 
-## Purpose
+## Features
 
-The goal is to capture the core behavior in code and make the surrounding assumptions obvious. A reader should be able to run the verifier, open the fixtures, and understand why each decision was made.
+- `fixtures/domain_review.csv` adds cases for span volume and latency skew.
+- `metadata/domain-review.json` records the same cases in structured form.
+- `config/review-profile.json` captures the read order and the two review questions.
+- `examples/logweave-walkthrough.md` walks through the case spread.
+- The Rust code includes a review path for `span volume` and `signal loss`.
+- `docs/field-notes.md` explains the strongest and weakest cases.
 
-## What It Does
+## Architecture Notes
 
-- Uses fixture data to keep log shape changes visible in code review.
-- Includes extended examples for latency summaries, including `surge` and `degraded`.
-- Documents incident slices tradeoffs in `docs/operations.md`.
-- Runs locally with a single verification command and no external credentials.
-- Stores project constants and verification metadata in `metadata/project.json`.
+The implementation keeps the scoring rule plain: reward signal and confidence, preserve slack, penalize drag, then classify the result into a review lane.
 
-## Fixture Notes
-
-The extended cases are not random smoke tests. `degraded` keeps pressure on the review path, while `surge` shows the model when capacity and weight are strong enough to clear the threshold.
-
-## Files Worth Reading
-
-- `src`: primary implementation
-- `tests`: verification harness
-- `fixtures`: compact golden scenarios
-- `examples`: expanded scenario set
-- `metadata`: project constants and verification metadata
-- `docs`: operations and extension notes
-- `scripts`: local verification and audit commands
-- `Cargo.toml`: Rust package metadata
-
-## Setup
-
-The only required setup is the local Rust toolchain. After cloning, stay in the repo root so fixture paths resolve correctly.
+The Rust implementation avoids hidden state so fixture changes are easy to reason about.
 
 ## Usage
 
@@ -47,23 +31,10 @@ The only required setup is the local Rust toolchain. After cloning, stay in the 
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/verify.ps1
 ```
 
-This runs the language-level build or test path against the compact fixture set.
+## Tests
 
-## Verification
+The check exercises the source code and the review fixture. `baseline` is the high score at 217; `edge` is the low score at 157.
 
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts/audit.ps1
-```
+## Limitations And Roadmap
 
-The audit command checks repository structure and README constraints before it delegates to the verifier.
-
-## Limits
-
-The repository favors determinism over breadth. It does not pull live data, keep secrets, or depend on network access for verification.
-
-## Next Directions
-
-- Add a loader for `examples/extended_cases.csv` and promote selected cases into the language test suite.
-- Add a short report command that prints the score breakdown for a single scenario.
-- Add malformed input fixtures so the failure path is as visible as the happy path.
-- Add one more observability fixture that focuses on a malformed or borderline input.
+The fixture set is small enough to audit by hand. The next useful expansion is malformed input coverage, not extra surface area.

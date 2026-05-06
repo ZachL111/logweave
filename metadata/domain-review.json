@@ -1,0 +1,73 @@
+{
+  "repo": "logweave",
+  "language": "Rust",
+  "category": "Observability",
+  "goal": "Correlate service logs into incident timelines.",
+  "review_model": {
+    "terms": [
+      "span volume",
+      "latency skew",
+      "signal loss",
+      "incident shape"
+    ],
+    "lanes": [
+      "ship",
+      "watch",
+      "hold"
+    ],
+    "score": "signal * 2 + slack + confidence - drag * 3",
+    "purpose": "surface the domain-specific cases that need the most careful review"
+  },
+  "cases": [
+    {
+      "name": "baseline",
+      "focus": "span volume",
+      "signal": 71,
+      "slack": 49,
+      "drag": 22,
+      "confidence": 92,
+      "score": 217,
+      "lane": "ship"
+    },
+    {
+      "name": "stress",
+      "focus": "latency skew",
+      "signal": 72,
+      "slack": 43,
+      "drag": 27,
+      "confidence": 69,
+      "score": 175,
+      "lane": "ship"
+    },
+    {
+      "name": "edge",
+      "focus": "signal loss",
+      "signal": 59,
+      "slack": 54,
+      "drag": 26,
+      "confidence": 63,
+      "score": 157,
+      "lane": "ship"
+    },
+    {
+      "name": "recovery",
+      "focus": "incident shape",
+      "signal": 50,
+      "slack": 48,
+      "drag": 16,
+      "confidence": 62,
+      "score": 162,
+      "lane": "ship"
+    },
+    {
+      "name": "stale",
+      "focus": "span volume",
+      "signal": 67,
+      "slack": 43,
+      "drag": 9,
+      "confidence": 61,
+      "score": 211,
+      "lane": "ship"
+    }
+  ]
+}
